@@ -111,3 +111,25 @@
 .action-btn:hover {
   background: #f0f0f0; /* cambio sutil al pasar el mouse */
 }
+
+
+.dots-container {
+  text-align: center;
+  margin-top: 6px;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 4px;
+  background-color: #ccc;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dot.active {
+  background-color: #333;
+}
+

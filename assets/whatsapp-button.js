@@ -3,7 +3,11 @@ class WhatsAppButton extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
 
-    this.phone = this.getAttribute("phone") || "";
+    const isLocal = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    this.phone = isLocal
+      ? this.getAttribute("phone-dev") || this.getAttribute("phone") || ""
+      : this.getAttribute("phone") || "";
+
     this.defaultMessage = this.getAttribute("message") || "Hola, deseo más información.";
 
     const linkFA = document.createElement("link");
@@ -94,7 +98,7 @@ class WhatsAppButton extends HTMLElement {
       <h2>Lista de productos</h2>
       <div id="products-list"></div>
       <div class="actions">
-        <button class="buy">Comprar</button>
+        <button style="display: none;" class="buy">Comprar</button>
         <button class="consult">Consultar</button>
         <button class="clear">Limpiar lista</button>
       </div>
@@ -140,7 +144,7 @@ class WhatsAppButton extends HTMLElement {
 
   updateView() {
     const cart = JSON.parse(localStorage.getItem("cart") || "[]");
-    this.text.textContent = cart.length > 0 ? `Productos (${cart.length})` : "913676003";
+    this.text.textContent = cart.length > 0 ? `Consultar (${cart.length}) Productos ` : "913676003";
   }
 
   renderProducts() {
@@ -154,12 +158,13 @@ class WhatsAppButton extends HTMLElement {
 
     cart.forEach((p, i) => {
       const displayName = p.name && p.name.trim() !== "" ? p.name : p.sku; // Si name vacío o null, usar SKU
+      // const displayName = p.sku; // Si name vacío o null, usar SKU
 
       const div = document.createElement("div");
       div.classList.add("product");
       div.innerHTML = `
       <span>
-        ${displayName} ${p.price !== null ? `- ${p.currency}${p.price}` : ""}
+        ${p.sku} - ${displayName}
       </span>
       <button data-index="${i}">&times;</button>
     `;

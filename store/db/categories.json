@@ -1,0 +1,12 @@
+{
+  "categories": [
+    {
+      "name": "Calzado",
+      "subCategories": ["Zapatos Mujer"]
+    },
+    {
+      "name": "Accesorios",
+      "subCategories": ["Sombreros", "Bufandas", "Aretes"]
+    }
+  ]
+}

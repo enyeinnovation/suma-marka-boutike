@@ -46,3 +46,27 @@
   height: 100%;
   overflow: hidden; /* Sin scroll */
 }
+
+.footer-tiktok-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background-color: #000; /* fondo negro */
+  color: #fff; /* texto blanco */
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 6px; /* esquinas redondeadas */
+  transition: background 0.2s;
+  font-size: 16px;
+  width: fit-content;
+  margin: 1rem auto;
+}
+
+.footer-tiktok-btn i {
+  font-size: 20px; /* tamaño del icono */
+}
+
+.footer-tiktok-btn:hover {
+  background-color: #1c1c1c; /* un poco más claro al pasar el mouse */
+}
