@@ -1,0 +1,48 @@
+.tiktok-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+.tiktok-modal.hidden {
+  display: none;
+}
+
+.tiktok-content {
+  position: relative;
+  /* background: #fff; */
+  padding: 0;
+  width: 325px; /* Ancho fijo igual que embed */
+  height: 580px; /* Alto fijo igual que embed */
+}
+
+#close-tiktok {
+  position: absolute;
+  top: -5vh; /* Más arriba del modal */
+  right: -10px; /* Un poco afuera del borde */
+  cursor: pointer;
+  font-size: 32px; /* Más grande */
+  font-weight: bold;
+  color: #fff; /* Color blanco */
+  background: rgba(0, 0, 0, 0.5); /* Fondo semitransparente para destacar */
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10001;
+}
+
+#tiktok-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* Sin scroll */
+}

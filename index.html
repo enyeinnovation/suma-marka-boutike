@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Suma Marka Boutique - Catálogo</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="assets/global.css?25_11_001" />
+    <link rel="stylesheet" href="assets/products.css?25_11_001" />
+    <link rel="stylesheet" href="assets/product-details.css?25_11_001" />
+    <link rel="stylesheet" href="assets/tiktok.css?25_11_001" />
+
+    <script src="assets/whatsapp-button.js?25_11_001" defer></script>
+    <script src="assets/tiktok.js?25_11_001" defer></script>
+
+    <script src="https://frank-gp.github.io/component/stat.js" type="module"></script>
+  </head>
+
+  <body>
+    <header>
+      <h1 class="title-h1">Catálogo</h1>
+      <img src="/brands/logo-horizontal.svg" class="img_logo_horizontal_svg" alt="Logo de la empresa" />
+    </header>
+
+    <div id="products-container" class="products-container"></div>
+    <footer>
+      <h2 class="footer_plaza">PLAZA SAN JOSE</h2>
+      <h2 class="footer_pabellon">PABELLON P7-P12</h2>
+      <h2 class="footer_whatsapp">Whatsapp: 913676003</h2>
+      <h2 class="footer_ciudad">JULIACA-PERU</h2>
+      <img id="fullscreen-btn" src="/brands/qr-code.svg" class="img_qr_code_svg" alt="Logo de la empresa" />
+      <p>SUMA MARKA &copy; 2025</p>
+    </footer>
+
+    <!-- <button id="fullscreen-btn" class="fullscreen-btn"><i class="fa-solid fa-expand"></i> Pantalla Completa</button> -->
+    <whatsapp-button phone="51918221790" message="Hola, quiero más información sobre un producto."></whatsapp-button>
+
+    <div id="tiktok-modal" class="tiktok-modal hidden">
+      <div class="tiktok-content">
+        <span id="close-tiktok">&times;</span>
+        <div id="tiktok-container"></div>
+      </div>
+    </div>
+
+    <script>
+      const productsImages = {};
+      const productsIndex = {};
+
+      // ------------ LOCAL STORAGE CARRITO ------------
+      function loadCart() {
+        return JSON.parse(localStorage.getItem("cart") || "[]");
+      }
+
+      function saveCart(cart) {
+        localStorage.setItem("cart", JSON.stringify(cart));
+        localStorage.setItem("cartCount", cart.length);
+
+        // Disparar evento manual para notificar al WebComponent
+        window.dispatchEvent(new Event("storage"));
+      }
+
+      function addToCart(product) {
+        const cart = loadCart();
+        cart.push(product);
+        saveCart(cart);
+
+        // Sacudir botón WhatsApp
+        const wspBtn = document.querySelector("whatsapp-button");
+        if (wspBtn && typeof wspBtn.shake === "function") {
+          wspBtn.shake();
+        }
+      }
+
+      // ------------ COMPARTIR PRODUCTO ------------
+      function shareProduct(product) {
+        const url = window.location.href;
+
+        const text = `Producto: ${product.name}\nPrecio: ${product.currency}${product.price}\n${url}`;
+
+        if (navigator.share) {
+          navigator.share({
+            title: product.name,
+            text: text,
+            url: url,
+          });
+        } else {
+          navigator.clipboard.writeText(text);
+          alert("📋 Enlace copiado al portapapeles");
+        }
+      }
+
+      // ------------ CARGAR PRODUCTOS ------------
+      fetch("store/db/products.json")
+        .then((res) => res.json())
+        .then((data) => {
+          const container = document.getElementById("products-container");
+
+          data.products.forEach((product) => {
+            productsImages[product.id] = product.images.map((img) => `store/imgs/${img}`);
+            productsIndex[product.id] = 0;
+
+            const card = document.createElement("div");
+            card.className = "product-card";
+
+            card.innerHTML = `
+          <div class="image-container">
+
+            <div class="slider-track" id="track-${product.id}">
+              ${productsImages[product.id].map((img) => `<img src="${img}" alt="${product.name}">`).join("")}
+            </div>
+
+            <div class="arrow-area left" onclick="prevImage('${product.id}')">
+              <i class="fa-solid fa-chevron-left arrow"></i>
+            </div>
+
+            <div class="arrow-area right" onclick="nextImage('${product.id}')">
+              <i class="fa-solid fa-chevron-right arrow"></i>
+            </div>
+          </div>
+          <h3>${product.name && product.name.trim() !== "" ? product.name : product.sku}</h3>
+      
+          <div class="product-actions">
+            <button class="action-btn" onclick="toggleDetails('${product.id}')">
+              <i id="icon-${product.id}" class="fa-solid fa-circle-info"></i>
+            </button>
+
+            ${
+              product.tiktok
+                ? `<button class="action-btn" onclick="openTikTokEmbed('${product.tiktok}')">
+                      <i class="fa-brands fa-tiktok"></i>
+               </button>`
+                : ""
+            }
+
+            <button class="action-btn" onclick='addToCart(${JSON.stringify(product)})'>
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+
+          <div id="details-${product.id}" class="details hidden">
+            <p><b>Descripción:</b> ${product.description}</p>
+            <div id="details-${product.id}" class="details hidden">
+              <p><b>Descripción:</b> ${product.description}</p>
+              ${product.price !== null ? `<p><b>Precio:</b> ${product.currency}${product.price}</p>` : ""}
+              <p><b>SKU:</b> ${product.sku}</p>
+
+              <p><b>Variantes:</b></p>
+              <ul>
+                ${product.variants.map((v) => `<li>Talla ${v.size}</li>`).join("")}
+              </ul>
+            </div>
+            <p><b>SKU:</b> ${product.sku}</p>
+
+            <p><b>Variantes:</b></p>
+            <ul>
+              ${product.variants.map((v) => `<li>Talla ${v.size}</li>`).join("")}
+            </ul>
+          </div>
+        `;
+
+            container.appendChild(card);
+          });
+        });
+
+      // ------------ SLIDER ------------
+      function updateSlider(id) {
+        const track = document.getElementById(`track-${id}`);
+        const index = productsIndex[id];
+        track.style.transform = `translateX(-${index * 100}%)`;
+      }
+
+      function nextImage(id) {
+        const total = productsImages[id].length;
+        productsIndex[id] = (productsIndex[id] + 1) % total;
+        updateSlider(id);
+      }
+
+      function prevImage(id) {
+        const total = productsImages[id].length;
+        productsIndex[id] = (productsIndex[id] - 1 + total) % total;
+        updateSlider(id);
+      }
+
+      // ------------ MOSTRAR DETALLES ------------
+      function toggleDetails(id) {
+        const box = document.getElementById(`details-${id}`);
+        const icon = document.getElementById(`icon-${id}`);
+
+        box.classList.toggle("hidden");
+        icon.classList.toggle("fa-circle-info");
+        icon.classList.toggle("fa-minus");
+      }
+
+      const fsBtn = document.getElementById("fullscreen-btn");
+
+      fsBtn.addEventListener("click", () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch((err) => {
+            console.log(`Error al activar fullscreen: ${err.message}`);
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      });
+    </script>
+  </body>
+</html>
