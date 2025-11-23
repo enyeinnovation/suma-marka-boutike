@@ -15,22 +15,23 @@
     <script src="https://frank-gp.github.io/component/stat.js" type="module"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" />
 
-    <link rel="stylesheet" href="assets/global.css?25_11_002" />
-    <link rel="stylesheet" href="assets/products.css?25_11_002" />
-    <link rel="stylesheet" href="assets/product-details.css?25_11_002" />
-    <link rel="stylesheet" href="assets/tiktok.css?25_11_002" />
-
-    <script src="assets/whatsapp-button.js?25_11_002" defer></script>
-    <script src="assets/tiktok.js?25_11_002" defer></script>
+    <link rel="stylesheet" href="assets/css/global.css?2511006" />
+    <link rel="stylesheet" href="assets/css/product-details.css?2511006" />
   </head>
 
   <body>
     <header>
       <h1 class="title-h1">Catálogo</h1>
+      <p class="title-date">Noviembre 2025</p>
       <img src="/brands/logo-horizontal.svg" class="img_logo_horizontal_svg" alt="Logo de la empresa" />
     </header>
 
+    <div class="chips-wrapper">
+      <div id="filter-chips" class="chips-container"></div>
+    </div>
+
     <div id="products-container" class="products-container"></div>
+
     <footer>
       <a href="https://www.tiktok.com/@sumamarka" target="_blank" class="footer-tiktok-btn">
         <i class="fa-brands fa-tiktok"></i>
@@ -41,10 +42,12 @@
       <h2 class="footer_whatsapp">Whatsapp: 913676003</h2>
       <h2 class="footer_ciudad">JULIACA-PERU</h2>
       <img id="fullscreen-btn" src="/brands/qr-code.svg" class="img_qr_code_svg" alt="Logo de la empresa" />
-      <p>SUMA MARKA &copy; 2025</p>
+      <p class="footer-copyright">SUMA MARKA &copy; 2025</p>
+
+      <script src="assets/components/tiktok-embed.js?2511006" defer></script>
+      <link rel="stylesheet" href="assets/components/tiktok-embed.css?2511006" />
     </footer>
 
-    <!-- <button id="fullscreen-btn" class="fullscreen-btn"><i class="fa-solid fa-expand"></i> Pantalla Completa</button> -->
     <whatsapp-button
       phone-dev="51918221790"
       phone="51913676003"
@@ -58,179 +61,27 @@
       </div>
     </div>
 
-    <script src="store/db/category-zpt.js?25_11_002"></script>
-    <script src="store/db/category-sbr.js?25_11_002"></script>
-    <script src="store/db/category-mnt.js?25_11_002"></script>
-    <script src="store/db/category-art.js?25_11_002"></script>
+    <script src="store/db/category-zpt.js?2511006"></script>
+    <script src="store/db/category-sbr.js?2511006"></script>
+    <script src="store/db/category-mnt.js?2511006"></script>
+    <script src="store/db/category-art.js?2511006"></script>
+    <script src="store/db/joined-products.js?2511006"></script>
 
-    <script>
-      // Combinar todas las categorías en un solo array
-      const allProducts = [
-        ...(typeof zptProducts !== "undefined" ? zptProducts : []),
-        ...(typeof sbrProducts !== "undefined" ? sbrProducts : []),
-        ...(typeof mntProducts !== "undefined" ? mntProducts : []),
-        ...(typeof artProducts !== "undefined" ? artProducts : []),
-      ];
+    <!-- Funciones independientes -->
+    <script src="assets/js/cart.js?2511006"></script>
+    <script src="assets/js/share.js?2511006"></script>
+    <script src="assets/js/slider.js?2511006"></script>
 
-      const productsImages = {};
-      const productsIndex = {};
+    <!-- Componentes -->
+    <script src="assets/components/whatsapp-button.js?2511006"></script>
 
-      function loadCart() {
-        return JSON.parse(localStorage.getItem("cart") || "[]");
-      }
+    <link rel="stylesheet" href="assets/components/product-card.css?2511006" />
+    <script src="assets/components/product-card.js?2511006"></script>
 
-      function saveCart(cart) {
-        localStorage.setItem("cart", JSON.stringify(cart));
-        localStorage.setItem("cartCount", cart.length);
-        window.dispatchEvent(new Event("storage"));
-      }
+    <script src="assets/components/chips-category.js?2511006"></script>
+    <link rel="stylesheet" href="assets/components/chips-category.css?2511006" />
 
-      function addToCart(product) {
-        const cart = loadCart();
-        cart.push(product);
-        saveCart(cart);
-        const wspBtn = document.querySelector("whatsapp-button");
-        if (wspBtn && typeof wspBtn.shake === "function") {
-          wspBtn.shake();
-        }
-      }
-
-      function shareProduct(product) {
-        const url = window.location.href;
-        const text = `Producto: ${product.name}\nPrecio: ${product.currency || ""}${product.price || ""}\n${url}`;
-        if (navigator.share) {
-          navigator.share({ title: product.name, text, url });
-        } else {
-          navigator.clipboard.writeText(text);
-          alert("📋 Enlace copiado al portapapeles");
-        }
-      }
-
-      const container = document.getElementById("products-container");
-
-      allProducts.forEach((product) => {
-        productsImages[product.id] = product.images.map((img) => `store/imgs/${product.folderCategory}/${img}`);
-        productsIndex[product.id] = 0;
-
-        const card = document.createElement("div");
-        card.className = "product-card";
-
-        card.innerHTML = `
-      <div class="image-container">
-        <div class="slider-track" id="track-${product.id}">
-          ${productsImages[product.id].map((img) => `<img src="${img}" alt="${product.name}">`).join("")}
-        </div>
-        <div class="arrow-area left" onclick="prevImage('${product.id}')">
-          <i class="fa-solid fa-chevron-left arrow"></i>
-        </div>
-        <div class="arrow-area right" onclick="nextImage('${product.id}')">
-          <i class="fa-solid fa-chevron-right arrow"></i>
-        </div>
-      </div>
-      <div class="dots-container" id="dots-${product.id}">
-        ${productsImages[product.id]
-          .map(
-            (_, idx) =>
-              `<span class="dot ${idx === 0 ? "active" : ""}" onclick="goToImage('${product.id}', ${idx})"></span>`
-          )
-          .join("")}
-      </div>
-
-
-      </div>
-      <h3>${product.sku.toUpperCase() || product.name}</h3>
-      <div class="product-actions">
-        <button class="action-btn" onclick="toggleDetails('${product.id}')">
-          <i id="icon-${product.id}" class="fa-solid fa-circle-info"></i>
-        </button>
-        ${
-          product.tiktok
-            ? `<button class="action-btn" onclick="openTikTokEmbed('${product.tiktok}')">
-          <i class="fa-brands fa-tiktok"></i>
-        </button>`
-            : ""
-        }
-        <button class="action-btn" onclick='addToCart(${JSON.stringify(product)})'>
-          <i class="fa-solid fa-plus"></i>
-        </button>
-      </div>
-      <div id="details-${product.id}" class="details hidden">
-        <p><b>Nombre:</b> ${product.name}</p>
-        <p><b>Descripción:</b> ${product.description}</p>
-        ${product.price ? `<p><b>Precio:</b> ${product.currency}${product.price}</p>` : ""}
-        <p><b>SKU:</b> ${product.sku.toUpperCase()}</p>
-      </div>
-    `;
-
-        container.appendChild(card);
-      });
-
-      function updateSlider(id) {
-        const track = document.getElementById(`track-${id}`);
-        const index = productsIndex[id];
-        track.style.transform = `translateX(-${index * 100}%)`;
-      }
-
-      function nextImage(id) {
-        const total = productsImages[id].length;
-        productsIndex[id] = (productsIndex[id] + 1) % total;
-        updateSlider(id);
-      }
-
-      function prevImage(id) {
-        const total = productsImages[id].length;
-        productsIndex[id] = (productsIndex[id] - 1 + total) % total;
-        updateSlider(id);
-      }
-
-      function toggleDetails(id) {
-        const box = document.getElementById(`details-${id}`);
-        const icon = document.getElementById(`icon-${id}`);
-        box.classList.toggle("hidden");
-        icon.classList.toggle("fa-circle-info");
-        icon.classList.toggle("fa-minus");
-      }
-
-      const fsBtn = document.getElementById("fullscreen-btn");
-      fsBtn.addEventListener("click", () => {
-        if (!document.fullscreenElement) {
-          document.documentElement
-            .requestFullscreen()
-            .catch((err) => console.log(`Error al activar fullscreen: ${err.message}`));
-        } else {
-          document.exitFullscreen();
-        }
-      });
-
-      function updateDots(id) {
-        const dotsContainer = document.getElementById(`dots-${id}`);
-        if (!dotsContainer) return;
-        const dots = dotsContainer.querySelectorAll(".dot");
-        dots.forEach((dot, idx) => {
-          dot.classList.toggle("active", idx === productsIndex[id]);
-        });
-      }
-
-      function goToImage(id, index) {
-        productsIndex[id] = index;
-        updateSlider(id);
-        updateDots(id);
-      }
-
-      // Modifica tus funciones nextImage y prevImage para actualizar los dots
-      function nextImage(id) {
-        const total = productsImages[id].length;
-        productsIndex[id] = (productsIndex[id] + 1) % total;
-        updateSlider(id);
-        updateDots(id);
-      }
-
-      function prevImage(id) {
-        const total = productsImages[id].length;
-        productsIndex[id] = (productsIndex[id] - 1 + total) % total;
-        updateSlider(id);
-        updateDots(id);
-      }
-    </script>
+    <!-- Inicialización debe ir Después de TODO -->
+    <script src="assets/js/main.js?2511006"></script>
   </body>
 </html>

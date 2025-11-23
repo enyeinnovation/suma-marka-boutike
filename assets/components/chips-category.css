@@ -1,0 +1,74 @@
+.chips-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: #fff;
+  padding: 1rem;
+  overflow: hidden;
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* Gradientes laterales */
+.chips-wrapper::before,
+.chips-wrapper::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 35px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.chips-wrapper::before {
+  left: 0;
+  /* background: linear-gradient(to right, #fff, transparent); */
+}
+
+.chips-wrapper::after {
+  right: 0;
+  /* background: linear-gradient(to left, #fff, transparent); */
+}
+
+.chips-container {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  padding: 12px 15px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory; /* 👉 snap */
+}
+
+.chips-container::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  white-space: nowrap;
+  background: #f2f2f2;
+  color: #333;
+  padding: 8px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  border: 1px solid #ddd;
+  transition: 0.2s;
+  scroll-snap-align: start; /* 👉 cada chip encaja */
+}
+
+.chip:hover {
+  background: #000;
+  color: #fff;
+}
+
+.chip.active {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}

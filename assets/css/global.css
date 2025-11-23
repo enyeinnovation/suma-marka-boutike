@@ -21,11 +21,20 @@ h6 {
 }
 .title-h1 {
   text-align: center;
-  margin: 2rem 0;
   margin-top: 8rem;
+  margin-bottom: 0;
   font-weight: 600;
   font-size: 3rem;
   color: #cf752f;
+}
+
+.title-date {
+  margin: 0;
+  padding: 0;
+  font-weight: 600;
+  font-size: 2rem;
+  color: #cf752f;
+  text-align: center;
 }
 
 .img_logo_horizontal_svg {
@@ -42,7 +51,6 @@ footer {
   flex-direction: column;
   /* align-items: center; */
   text-align: center;
-  gap: 10px;
   border-top: 1px solid #e0e0e0; /* Separador sutil */
   padding: 10vh 0;
 
@@ -77,6 +85,13 @@ footer {
     height: 25rem;
     object-fit: contain;
     padding: 3rem;
+  }
+  .footer-copyright {
+    margin: 0;
+    padding: 0;
+    font-weight: 300;
+    font-size: 1rem;
+    color: #333;
   }
 }
 
